@@ -1,0 +1,13 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["Y9X796R63H.com.huangdgm.CubeTimer"],
+        "components": [
+          { "/": "/cubetimer/add", "comment": "Friend invite; the code is in the fragment" },
+          { "/": "/cubetimer/add/" }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<!-- Once the app is on the App Store, also add:
+     <meta name="apple-itunes-app" content="app-id=APP_ID"> -->
+<title>Add me on CubeTimer · 在 CubeTimer 加我为好友</title>
+<link rel="apple-touch-icon" href="icon.png">
+<style>
+  :root { color-scheme: light dark; --accent: #0a84ff; }
+  * { box-sizing: border-box; }
+  body { font: 17px/1.5 -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", sans-serif; max-width: 26rem; margin: 0 auto; padding: 2.5rem 1.25rem 3rem; text-align: center; }
+  html[lang="en"] [lang="zh-Hans"], html[lang="zh-Hans"] [lang="en"] { display: none; }
+  img.icon { width: 88px; height: 88px; border-radius: 20px; box-shadow: 0 2px 10px rgb(0 0 0 / .15); }
+  h1 { font-size: 1.5rem; margin: 1rem 0 .25rem; }
+  .muted { color: GrayText; font-size: .95rem; }
+  .code { font: 600 2rem/1 ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: .08em; margin: 1.5rem 0 .75rem; user-select: all; -webkit-user-select: all; }
+  .button { display: block; width: 100%; padding: .85rem 1rem; margin: .6rem 0; border-radius: 14px; border: none; font: inherit; font-weight: 600; text-decoration: none; cursor: pointer; }
+  .primary { background: var(--accent); color: #fff; }
+  .secondary { background: rgb(127 127 127 / .15); color: inherit; }
+  .notice { background: rgb(255 159 10 / .15); border-radius: 14px; padding: .85rem 1rem; margin: 1.25rem 0; text-align: left; }
+  ol { text-align: left; padding-left: 1.4rem; }
+  footer { margin-top: 2.5rem; font-size: .85rem; }
+  footer a, footer button { color: GrayText; background: none; border: none; font: inherit; padding: 0 .4rem; cursor: pointer; text-decoration: underline; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+
+<img class="icon" src="icon.png" alt="">
+
+<div id="invite" hidden>
+  <h1><span lang="en">Add me on CubeTimer</span><span lang="zh-Hans">在 CubeTimer 加我为好友</span></h1>
+  <p class="muted"><span lang="en">My friend code</span><span lang="zh-Hans">我的好友码</span></p>
+  <div class="code" id="code"></div>
+
+  <p class="notice" id="wechat" hidden>
+    <span lang="en">WeChat can’t open apps from here. Tap <b>···</b> at the top right and choose <b>Open in Safari</b>, or copy the code below.</span>
+    <span lang="zh-Hans">微信里无法直接打开 App。请点右上角 <b>···</b>，选择<b>「在 Safari 中打开」</b>，或者复制下面的好友码。</span>
+  </p>
+
+  <a class="button primary" id="open"><span lang="en">Open in CubeTimer</span><span lang="zh-Hans">在 CubeTimer 中打开</span></a>
+  <button class="button secondary" id="copy" type="button">
+    <span data-state="idle"><span lang="en">Copy code</span><span lang="zh-Hans">复制好友码</span></span>
+    <span data-state="done" hidden><span lang="en">Copied</span><span lang="zh-Hans">已复制</span></span>
+  </button>
+
+  <h2 class="muted" style="font-size:1rem;margin-top:2rem"><span lang="en">Don’t have CubeTimer yet?</span><span lang="zh-Hans">还没有安装 CubeTimer？</span></h2>
+  <ol>
+    <li>
+      <a id="store" hidden><span lang="en">Get CubeTimer on the App Store</span><span lang="zh-Hans">在 App Store 下载 CubeTimer</span></a>
+      <span id="soon"><span lang="en">CubeTimer is coming soon to the App Store.</span><span lang="zh-Hans">CubeTimer 即将在 App Store 上架。</span></span>
+    </li>
+    <li><span lang="en">Sign in under <b>Me</b>, then scan this QR code again — or go to <b>Me → Friends → +</b> and paste the code.</span><span lang="zh-Hans">在<b>「我的」</b>中登录，然后再次扫描这个二维码；或者进入<b>「我的」→「好友」→「+」</b>，粘贴好友码。</span></li>
+  </ol>
+</div>
+
+<div id="broken" hidden>
+  <h1><span lang="en">This invite link is incomplete</span><span lang="zh-Hans">这个邀请链接不完整</span></h1>
+  <p class="muted"><span lang="en">Ask your friend to share their QR code or link again.</span><span lang="zh-Hans">请让好友重新分享二维码或链接。</span></p>
+</div>
+
+<footer>
+  <button type="button" data-lang="en">English</button><button type="button" data-lang="zh-Hans">简体中文</button>
+  <br><a href="/cubetimer-privacy/"><span lang="en">Privacy Policy</span><span lang="zh-Hans">隐私政策</span></a>
+</footer>
+
+<script>
+  // Fill in once the app is released, e.g. "https://apps.apple.com/app/id1234567890".
+  const APP_STORE_URL = "";
+
+  // Mirrors FriendCode.normalize in the app: Crockford Base32, forgiving of O/I/L, spaces and dashes.
+  const ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+  function normalize(raw) {
+    let code = "";
+    for (const ch of raw.toUpperCase()) {
+      if (" -\t\n".includes(ch)) continue;
+      code += ch === "O" ? "0" : (ch === "I" || ch === "L") ? "1" : ch;
+    }
+    return code.length === 8 && [...code].every(c => ALPHABET.includes(c)) ? code : null;
+  }
+
+  function setLanguage(lang) { document.documentElement.lang = lang; }
+  setLanguage((navigator.languages || [navigator.language]).some(l => /^zh/i.test(l)) ? "zh-Hans" : "en");
+  document.querySelectorAll("[data-lang]").forEach(b => b.addEventListener("click", () => setLanguage(b.dataset.lang)));
+
+  let raw = "";
+  try { raw = decodeURIComponent(location.hash.slice(1)); } catch (_) {}
+  const code = normalize(raw);
+
+  if (!code) {
+    document.getElementById("broken").hidden = false;
+  } else {
+    const formatted = code.slice(0, 4) + "-" + code.slice(4);
+    document.getElementById("invite").hidden = false;
+    document.getElementById("code").textContent = formatted;
+    document.getElementById("open").href = "cubetimer://add#" + formatted;
+    document.getElementById("wechat").hidden = !/MicroMessenger/i.test(navigator.userAgent);
+
+    const copy = document.getElementById("copy");
+    copy.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(formatted);
+      } catch (_) {
+        const range = document.createRange();
+        range.selectNodeContents(document.getElementById("code"));
+        getSelection().removeAllRanges();
+        getSelection().addRange(range);
+        document.execCommand("copy");
+      }
+      copy.querySelector('[data-state="idle"]').hidden = true;
+      copy.querySelector('[data-state="done"]').hidden = false;
+    });
+
+    if (APP_STORE_URL) {
+      const store = document.getElementById("store");
+      store.href = APP_STORE_URL;
+      store.hidden = false;
+      document.getElementById("soon").hidden = true;
+    }
+  }
+</script>
+</body>
+</html>
